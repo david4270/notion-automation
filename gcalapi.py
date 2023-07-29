@@ -63,8 +63,9 @@ def gcal_access():
 
         if not events:
             print('No upcoming events found.')
-            return
+            return {}
         
+
         
         # Prints the start and name of the next 10 events
         for event in events:
