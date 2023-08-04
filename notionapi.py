@@ -14,6 +14,12 @@ def query_pages(url, dbid, payload, header):
 
 def create_pages(url, payload, header):
     response = requests.post(url, json = payload, headers = header)
+    """
+    data = response.json()
+
+    with open('create.json', 'w', encoding='utf8') as f:
+        json.dump(data, f, ensure_ascii=False, indent = 4)
+    """
     return response
 
 def get_data(blkID, header):

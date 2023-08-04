@@ -47,8 +47,8 @@ today_folder = now.strftime("%B %Y")
 print("New calendar goes into: ", today_folder)
 
 # test out
-# today_folder = "August 2023"
-# today_diary_name = "July 28 (Fri)"
+today_folder = "September 2023"
+today_diary_name = "September 01 (Fri)"
 
 titles = datahandling.retrieveInfo(pages)
 
@@ -72,10 +72,37 @@ if today_folder not in titles.keys():
             }
         ],
         "properties": {
-            "Name": {
+            "Last edited time": {
+                "name": "Last edited time",
+                "type": "last_edited_time",
+                "last_edited_time": {}
+            },
+            "Created by": {
+                "name": "Created by",
+                "type": "created_by",
+                "created_by": {}
+            },
+            "Created time": {
+                "name": "Created time",
+                "type": "created_time",
+                "created_time": {}
+            },
+            "Status": {
+                "name": "Status",
+                "type": "select",
+                "select": {
+                    "options": []
+                }
+            },
+            "Page": {
+                "id": "title",
+                "name": "Page",
+                "type": "title",
                 "title": {}
-            }         
+            }
         }
+
+
     }
 
     create_url = "https://api.notion.com/v1/databases"
@@ -123,7 +150,6 @@ for eventName in gcal_events.keys():
             events_dict["12AM+1"] = events_dict.get("12AM+1","") + eventName
 
 print(events_dict)
-
 
 if today_diary_name not in titles.keys():
     print("Creating today's diary - " + today_diary_name)
