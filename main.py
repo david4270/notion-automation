@@ -47,8 +47,8 @@ today_folder = now.strftime("%B %Y")
 print("New calendar goes into: ", today_folder)
 
 # test out
-today_folder = "September 2023"
-today_diary_name = "September 01 (Fri)"
+#today_folder = "September 2023"
+#today_diary_name = "September 01 (Fri)"
 
 titles = datahandling.retrieveInfo(pages)
 
