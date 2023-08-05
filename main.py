@@ -18,10 +18,10 @@ from datetime import datetime, timezone
 
 import json
 
-import notionapi
-import apiimport
-import datahandling
-import gcalapi
+import src.notionapi as notionapi
+import src.apiimport as apiimport
+import src.datahandling as datahandling
+import src.gcalapi as gcalapi
 
 def main():
     # Common headers
