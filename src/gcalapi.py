@@ -69,8 +69,22 @@ def gcal_access():
         
         # Prints the start and name of the next 10 events
         for event in events:
-            start = event['start'].get('dateTime', event['start'].get('date'))
-            end = event['end'].get('dateTime', event['start'].get('date'))
+            #print(event)
+            if 'dateTime' in event['start'].keys():
+                start = event['start'].get('dateTime')
+            else:
+                start = event['start'].get('date')
+                #print(start)
+                start_obj = datetime.datetime.strptime(start, '%Y-%m-%d').date()
+                start = start_obj.strftime("%Y-%b-%dT%H:%M")            
+
+            if 'dateTime' in event['end'].keys():
+                end = event['end'].get('dateTime')
+            else:
+                end = start
+
+            #start = event['start'].get('dateTime', event['start'].get('date'))
+            #end = event['end'].get('dateTime', event['start'].get('date'))
             #print(start, end, event['summary'])
             startTime = re.findall('T\d{2}:\d{2}', start)[0]
             endTime = re.findall('T\d{2}:\d{2}', end)[0]
