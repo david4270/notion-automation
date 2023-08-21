@@ -7,4 +7,5 @@ Since Notion provides API which could be used with Python3, I decided to use not
 ![alt text](https://github.com/david4270/notion-automation/blob/main/files/monthly.png?raw=true)
 
 Here is what the diary format looks like :)
+
 ![alt text](https://github.com/david4270/notion-automation/blob/main/files/diary.png?raw=true)
