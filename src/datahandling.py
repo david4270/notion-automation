@@ -1,3 +1,5 @@
+import json 
+
 def retrieveInfo(pages):
     # Traverse queried pages
     titles = {}
@@ -17,3 +19,11 @@ def retrieveInfo(pages):
         titles[title] = (objType, id)
     
     return titles
+
+def json_open(fileName):
+    data = {}
+    with open(fileName,'r',encoding='utf8') as f:
+        data = json.load(f)
+    
+    f.close()
+    return data["results"]

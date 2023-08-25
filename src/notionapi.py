@@ -26,9 +26,9 @@ def get_data(blkID, header):
     blk_url = f"https://api.notion.com/v1/blocks/{blkID}/children"
     blk_response = requests.get(blk_url, headers = header)
     blk_data = blk_response.json()
-    """
+    
     with open(f'db_{blkID}.json', 'w', encoding='utf8') as f:
         json.dump(blk_data, f, ensure_ascii=False, indent = 4)
-    """
+    
     blk_results = blk_data["results"]
     return blk_results

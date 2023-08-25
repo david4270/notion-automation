@@ -122,8 +122,12 @@ def main():
         print("Yep - monthly page exists")
 
     # Obtain data from diary template?
-    diary_block_id = titles["Diary Template"][1].replace("-","")
-    diary_results = notionapi.get_data(diary_block_id, headers)
+    #diary_block_id = titles["Diary Template"][1].replace("-","")
+    #diary_results = notionapi.get_data(diary_block_id, headers)
+
+    # open page_
+    diary_results = datahandling.json_open("page_template/diary.json")
+    #print(diary_results)
 
     retrieve_id = titles[today_folder][1].replace("-","")
 
