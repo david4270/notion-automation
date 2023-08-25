@@ -1,6 +1,6 @@
 # Ignore all JSON files - google calendar credentials!
 json/*.json
-*.json
+/*.json
 
 # Ignore apiimport.py
 src/apiimport.py
