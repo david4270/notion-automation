@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 import datetime
-from dateutil.tz import tzlocal
+from dateutil.tz import *
 import os.path
 import re
 
@@ -43,7 +43,7 @@ def gcal_access():
         service = build('calendar', 'v3', credentials=creds)
 
         # Call the Calendar API
-        now = datetime.datetime.now(tzlocal()).isoformat()
+        now = datetime.datetime.now(tzlocal()).replace(hour = 8, minute = 0, second = 0).isoformat()
         endofday = datetime.datetime.now(tzlocal()).replace(hour = 23, minute = 59, second = 59).isoformat()
 
         # Get list of calendar ID
@@ -64,8 +64,6 @@ def gcal_access():
         if not events:
             print('No upcoming events found.')
             return {}
-        
-
         
         # Prints the start and name of the next 10 events
         for event in events:
