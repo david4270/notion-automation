@@ -4,6 +4,11 @@ Welcome to the notion automation script! In order to track my life better and ma
 
 Since Notion provides API which could be used with Python3, I decided to use notion's API to make a daily page (and a monthly page if it is a new month). 
 
+### <Update>
+##### 230902
+- Address time zone differences in some calendar events which is set in different timezone. Special thanks to Tottenham Hotspur Football Club to provide this test case.
+
+
 ![alt text](https://github.com/david4270/notion-automation/blob/main/files/monthly.png?raw=true)
 
 Here is what the diary format looks like :)
