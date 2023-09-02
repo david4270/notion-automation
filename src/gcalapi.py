@@ -73,22 +73,17 @@ def gcal_access():
             print(event)
             if 'dateTime' in event['start'].keys():
                 start = event['start'].get('dateTime')
-                start_tz = event['start'].get('timeZone')
                 start_obj = datetime.datetime.strptime(start, "%Y-%m-%dT%H:%M:%S%z")
-                #print(start_obj.tzinfo)
                 start_obj = start_obj.replace(tzinfo=start_obj.tzinfo).astimezone(tzlocal())
                 start = start_obj.strftime("%Y-%b-%dT%H:%M")    
             else:
                 start = event['start'].get('date')
-                start_tz = event['start'].get('timeZone')
-                #print(start)
                 start_obj = datetime.datetime.strptime(start, '%Y-%m-%d').date()
                 start_obj = start_obj.replace(tzinfo=start_obj.tzinfo).astimezone(tzlocal())
                 start = start_obj.strftime("%Y-%b-%dT%H:%M")            
 
             if 'dateTime' in event['end'].keys():
                 end = event['end'].get('dateTime')
-                end_tz = event['end'].get('timeZone')
                 end_obj = datetime.datetime.strptime(end, "%Y-%m-%dT%H:%M:%S%z")
                 end_obj = end_obj.replace(tzinfo=end_obj.tzinfo).astimezone(tzlocal())
                 end = end_obj.strftime("%Y-%b-%dT%H:%M") 
