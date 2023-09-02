@@ -6,7 +6,7 @@ Since Notion provides API which could be used with Python3, I decided to use not
 
 ### Update
 ##### 230902
-- Address time zone differences in some calendar events which is set in different timezone. Special thanks to Tottenham Hotspur Football Club to provide this test case.
+- Address time zone differences in some calendar events which is set in different timezone. Special thanks to Tottenham Hotspur Football Club for providing this test case. #COYS
 
 
 ![alt text](https://github.com/david4270/notion-automation/blob/main/files/monthly.png?raw=true)
