@@ -14,6 +14,8 @@ from googleapiclient.errors import HttpError
 
 # Based on quickstart.py in https://developers.google.com/calendar/api/quickstart/python
 
+# special thanks to: https://stackoverflow.com/questions/4563272/how-to-convert-a-utc-datetime-to-a-local-datetime-using-only-standard-library
+
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 
