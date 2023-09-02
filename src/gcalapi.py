@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import datetime
+import pytz
 from dateutil.tz import *
 import os.path
 import re
@@ -67,20 +68,32 @@ def gcal_access():
         
         # Prints the start and name of the next 10 events
         for event in events:
-            #print(event)
+            print(event)
             if 'dateTime' in event['start'].keys():
                 start = event['start'].get('dateTime')
+                start_tz = event['start'].get('timeZone')
+                start_obj = datetime.datetime.strptime(start, "%Y-%m-%dT%H:%M:%S%z")
+                #print(start_obj.tzinfo)
+                start_obj = start_obj.replace(tzinfo=start_obj.tzinfo).astimezone(tzlocal())
+                start = start_obj.strftime("%Y-%b-%dT%H:%M")    
             else:
                 start = event['start'].get('date')
+                start_tz = event['start'].get('timeZone')
                 #print(start)
                 start_obj = datetime.datetime.strptime(start, '%Y-%m-%d').date()
+                start_obj = start_obj.replace(tzinfo=start_obj.tzinfo).astimezone(tzlocal())
                 start = start_obj.strftime("%Y-%b-%dT%H:%M")            
 
             if 'dateTime' in event['end'].keys():
                 end = event['end'].get('dateTime')
+                end_tz = event['end'].get('timeZone')
+                end_obj = datetime.datetime.strptime(end, "%Y-%m-%dT%H:%M:%S%z")
+                end_obj = end_obj.replace(tzinfo=end_obj.tzinfo).astimezone(tzlocal())
+                end = end_obj.strftime("%Y-%b-%dT%H:%M") 
             else:
                 end = start
 
+            print(start,end)
             #start = event['start'].get('dateTime', event['start'].get('date'))
             #end = event['end'].get('dateTime', event['start'].get('date'))
             #print(start, end, event['summary'])
