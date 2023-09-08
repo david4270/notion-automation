@@ -15,6 +15,7 @@
 
 import requests
 from datetime import datetime, timezone
+from dateutil.tz import *
 
 import json
 
@@ -39,17 +40,16 @@ def main():
 
     pages = notionapi.query_pages(query_url, apiimport.DATABASE_ID, query_payload, headers)
 
+    #testcase
+    #now = datetime(2023,9,10)
+
     # Analyse datetime
-    now = datetime.now()
+    now = datetime.now(tzlocal())  
     print("Now: ", now)
     today_diary_name = now.strftime("%B %d (%a)")
     print("Formatted time: ", today_diary_name)
     today_folder = now.strftime("%B %Y")
     print("New calendar goes into: ", today_folder)
-
-    # test out
-    #today_folder = "September 2023"
-    #today_diary_name = "September 01 (Fri)"
 
     titles = datahandling.retrieveInfo(pages)
 
@@ -58,53 +58,7 @@ def main():
         print("Nope")
 
         # Create database - https://www.pynotion.com/create-databases/
-        create_payload = {
-            "parent": {
-                "type": "database_id",
-                "database_id": apiimport.DATABASE_ID
-            },
-            "title": [
-                {
-                    "type": "text",
-                    "text": {
-                        "content": today_folder,
-                    },
-                    "plain_text": today_folder
-                }
-            ],
-            "properties": {
-                "Last edited time": {
-                    "name": "Last edited time",
-                    "type": "last_edited_time",
-                    "last_edited_time": {}
-                },
-                "Created by": {
-                    "name": "Created by",
-                    "type": "created_by",
-                    "created_by": {}
-                },
-                "Created time": {
-                    "name": "Created time",
-                    "type": "created_time",
-                    "created_time": {}
-                },
-                "Status": {
-                    "name": "Status",
-                    "type": "select",
-                    "select": {
-                        "options": []
-                    }
-                },
-                "Page": {
-                    "id": "title",
-                    "name": "Page",
-                    "type": "title",
-                    "title": {}
-                }
-            }
-
-
-        }
+        create_payload = notionapi.empty_database_format(apiimport.DATABASE_ID, today_folder)
 
         create_url = "https://api.notion.com/v1/databases"
 
@@ -159,31 +113,7 @@ def main():
     if today_diary_name not in titles.keys():
         print("Creating today's diary - " + today_diary_name)
 
-        create_payload = {
-            "parent": {
-                "type": "database_id",
-                "database_id": retrieve_id
-            },
-            "icon": {
-                "type": "emoji",
-                "emoji": "📅"
-            },
-            "properties": {
-                "Page": {
-                    "id": "title",
-                    "type": "title",
-                    "title": [
-                        {
-                            "type": "text",
-                            "text": {
-                                "content": today_diary_name
-                            },
-                            "plain_text": today_diary_name
-                        }
-                    ]
-                }         
-            }
-        }
+        create_payload = notionapi.empty_page_format(retrieve_id, today_diary_name, "📅")
 
         create_url = "https://api.notion.com/v1/pages"
 
@@ -201,8 +131,6 @@ def main():
         update_url = f"https://api.notion.com/v1/blocks/{update_id}/children"
 
         # Create Table
-
-        
 
         for i in range(0,len(diary_results)):
             if diary_results[i]["type"] == "table":

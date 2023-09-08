@@ -7,3 +7,4 @@ src/apiimport.py
 
 # Ignore pycache
 __pycache__/
+src/__pycache__/

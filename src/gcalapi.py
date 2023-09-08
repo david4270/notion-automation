@@ -1,7 +1,6 @@
 from __future__ import print_function
 
 import datetime
-import pytz
 from dateutil.tz import *
 import os.path
 import re
@@ -17,7 +16,7 @@ from googleapiclient.errors import HttpError
 # special thanks to: https://stackoverflow.com/questions/4563272/how-to-convert-a-utc-datetime-to-a-local-datetime-using-only-standard-library
 
 # If modifying these scopes, delete the file token.json.
-SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
+SCOPES = ['https://www.googleapis.com/auth/calendar.readonly', 'https://www.googleapis.com/auth/calendar']
 
 def gcal_access():
     """Shows basic usage of the Google Calendar API.
@@ -70,7 +69,7 @@ def gcal_access():
         
         # Prints the start and name of the next 10 events
         for event in events:
-            print(event)
+            #print(event)
             if 'dateTime' in event['start'].keys():
                 start = event['start'].get('dateTime')
                 start_obj = datetime.datetime.strptime(start, "%Y-%m-%dT%H:%M:%S%z")
@@ -90,7 +89,7 @@ def gcal_access():
             else:
                 end = start
 
-            print(start,end)
+            #print(start,end)
             #start = event['start'].get('dateTime', event['start'].get('date'))
             #end = event['end'].get('dateTime', event['start'].get('date'))
             #print(start, end, event['summary'])
@@ -113,5 +112,33 @@ def gcal_access():
     
     return scheduleInfo
 
+def gcal_event():
+    creds = None
+    # The file token.json stores the user's access and refresh tokens, and is
+    # created automatically when the authorization flow completes for the first
+    # time.
+    if os.path.exists('json/gcal_token.json'):
+        creds = Credentials.from_authorized_user_file('json/gcal_token.json', SCOPES)
+    # If there are no (valid) credentials available, let the user log in.
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                'json/gcal_credentials.json', SCOPES)
+            creds = flow.run_local_server(port=0)
+        # Save the credentials for the next run
+        with open('json/gcal_token.json', 'w') as token:
+            token.write(creds.to_json())
+    
+    try:
+        service = build('calendar', 'v3', credentials=creds)
+        event = service.events().insert(calendarId = "primary", body = {"start":{"dateTime":"2023-09-03T10:00:00.000-04:00"}, "end":{"dateTime":"2023-09-03T11:00:00.000-04:00"}}).execute()
+    
+    except HttpError as error:
+        print('An error occurred: %s' % error)
+
 
 #gcal_access()
+
+#gcal_event()

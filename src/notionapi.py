@@ -32,3 +32,81 @@ def get_data(blkID, header):
     """
     blk_results = blk_data["results"]
     return blk_results
+
+def empty_database_format(parent_db_id, name):
+    empty_database = {
+        "parent": {
+            "type": "database_id",
+            "database_id": parent_db_id
+        },
+        "title": [
+            {
+                "type": "text",
+                "text": {
+                    "content": name,
+                },
+                "plain_text": name
+            }
+        ],
+        "properties": {
+            "Last edited time": {
+                "name": "Last edited time",
+                "type": "last_edited_time",
+                "last_edited_time": {}
+            },
+            "Created by": {
+                "name": "Created by",
+                "type": "created_by",
+                "created_by": {}
+            },
+            "Created time": {
+                "name": "Created time",
+                "type": "created_time",
+                "created_time": {}
+            },
+            "Status": {
+                "name": "Status",
+                "type": "select",
+                "select": {
+                    "options": []
+                }
+            },
+            "Page": {
+                "id": "title",
+                "name": "Page",
+                "type": "title",
+                "title": {}
+            }
+        }
+
+
+    }
+    return empty_database
+
+def empty_page_format(parent_db_id, name, page_emoji):
+    empty_page = {
+            "parent": {
+                "type": "database_id",
+                "database_id": parent_db_id
+            },
+            "icon": {
+                "type": "emoji",
+                "emoji": page_emoji
+            },
+            "properties": {
+                "Page": {
+                    "id": "title",
+                    "type": "title",
+                    "title": [
+                        {
+                            "type": "text",
+                            "text": {
+                                "content": name
+                            },
+                            "plain_text": name
+                        }
+                    ]
+                }         
+            }
+        }
+    return empty_page
