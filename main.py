@@ -2,7 +2,13 @@
 # Check google calendar, outlook etc, and retrieve the schedules of the day, populate in the table of the diary (if possible)
 # Ideal if it can run every hour when desktop is on, and keep updating the schedule based on google calendar and outlook
 # The script should run every morning
-# Notion API [V], Google Calendar API [WIP]
+
+# To-do
+# 1) Get page data for last 10 days (before today's page creation) - get the latest page. Copy the to-do list and retrieve the modified schedule information from table
+# 1-1) Copy the recent to-do list to today's page
+# 1-2) Create events (of past) based on schedule information retrieved from 1) on google calendar. If there are multiple events, separate by comma (,)
+# 2) Make tables into 30-minute basis, and use 24-hour format
+
 
 # Notion API
 # https://developers.notion.com/docs/create-a-notion-integration
@@ -155,6 +161,8 @@ def main():
         }
 
         response = requests.patch(update_url, headers=headers, json=update_payload)
+
+        
         
     else:
         print("Yep - daily diary exists")
