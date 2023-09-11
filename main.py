@@ -98,28 +98,7 @@ def main():
                         #print(datalet)
                         if 'to_do' in datalet.keys():
                             datalet['to_do']['checked'] = False
-                            if datalet['has_children'] == True:
-                                target_child_id = datalet['id'].replace("-","")
-                                target_child_url = f"https://api.notion.com/v1/blocks/{target_child_id}/children"
-                                target_child_data = notionapi.get_data(target_child_url, headers)
-                                
-                                children_data = []
-                                for it in range(len(target_child_data)):
-                                    interim_data = {}
-                                    interim_data['type'] = target_child_data[it]['type']
-
-                                    if target_child_data[it]['type'] == 'image':
-                                        continue
-
-                                    interim_data[interim_data['type']] = target_child_data[it][interim_data['type']]
-
-                                    if target_child_data[it]['type'] == 'to_do':
-                                        interim_data[interim_data['type']]['checked'] = False
-                                    
-                                    children_data.append(interim_data)
-                                
-
-                                datalet['to_do']['children'] = children_data
+                            notionapi.set_children(datalet,headers)
                                 
                             # Gotta deal with children
                             to_do_backup.append(datalet)
@@ -203,37 +182,18 @@ def main():
                     target_diary_data = notionapi.get_data(target_diary_url, headers)
                     for datalet in target_diary_data:
                         #print(datalet)
+                        if 'table' in datalet.keys():
+                            print(datalet)
                         if 'to_do' in datalet.keys():
                             datalet['to_do']['checked'] = False
-                            if datalet['has_children'] == True:
-                                target_child_id = datalet['id'].replace("-","")
-                                target_child_url = f"https://api.notion.com/v1/blocks/{target_child_id}/children"
-                                target_child_data = notionapi.get_data(target_child_url, headers)
 
-                                children_data = []
-                                for it in range(len(target_child_data)):
-                                    interim_data = {}
-                                    interim_data['type'] = target_child_data[it]['type']
+                            # to make function - set_children(data, )
+                            notionapi.set_children(datalet,headers)
 
-                                    if target_child_data[it]['type'] == 'image':
-                                        continue
-
-                                    interim_data[interim_data['type']] = target_child_data[it][interim_data['type']]
-
-                                    if target_child_data[it]['type'] == 'to_do':
-                                        interim_data[interim_data['type']]['checked'] = False
-                                    
-                                    children_data.append(interim_data)
-
-                                datalet['to_do']['children'] = children_data
-                                
                             # Gotta deal with children
                             to_do_backup.append(datalet)
 
                     break
-            
-        
-        #print(to_do_backup)
 
         print("Creating today's diary - " + today_diary_name)
 
@@ -257,8 +217,6 @@ def main():
         # Create Table
         diary_results.extend(to_do_backup)
         diary_results.extend(diary_results_tmp[1:])
-        
-        
 
         for i in range(0,len(diary_results)):
             if diary_results[i]["type"] == "to_do":

@@ -45,6 +45,7 @@ def gcal_access():
         service = build('calendar', 'v3', credentials=creds)
 
         # Call the Calendar API
+
         now = datetime.datetime.now(tzlocal()).replace(hour = 8, minute = 0, second = 0).isoformat()
         endofday = datetime.datetime.now(tzlocal()).replace(hour = 23, minute = 59, second = 59).isoformat()
 
@@ -133,7 +134,15 @@ def gcal_event():
     
     try:
         service = build('calendar', 'v3', credentials=creds)
-        event = service.events().insert(calendarId = "primary", body = {"start":{"dateTime":"2023-09-03T10:00:00.000-04:00"}, "end":{"dateTime":"2023-09-03T11:00:00.000-04:00"}}).execute()
+
+        # simulation
+        now = datetime.datetime.now(tzlocal())
+        sample_event_dict = {"Event A": [14,16], "Event B": [18,20]}
+
+        print(now)
+
+        for event_name in sample_event_dict.keys():
+            event = service.events().insert(calendarId = "primary", body = {"summary":event_name,"start":{"dateTime":now.replace(hour=sample_event_dict[event_name][0], minute=0, second=0, microsecond=0).isoformat()}, "end":{"dateTime":now.replace(hour=sample_event_dict[event_name][1], minute=0, second=0, microsecond=0).isoformat()}}).execute()
     
     except HttpError as error:
         print('An error occurred: %s' % error)

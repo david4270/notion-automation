@@ -110,3 +110,36 @@ def empty_page_format(parent_db_id, name, page_emoji):
             }
         }
     return empty_page
+
+def set_children(data, headers):
+    if data['has_children'] == True:
+        target_child_id = data['id'].replace("-","")
+        target_child_url = f"https://api.notion.com/v1/blocks/{target_child_id}/children"
+        target_child_data = get_data(target_child_url, headers)
+
+        children_data = []
+        for datalet in target_child_data:
+            interim_data = {}
+
+            # notion API does not support more than 2-level nested children
+            #set_children(datalet, headers)
+
+            interim_data['type'] = datalet['type']
+
+            if datalet['type'] == 'image':
+                continue
+
+            interim_data[interim_data['type']] = datalet[interim_data['type']]
+
+            if datalet['type'] == 'to_do':
+                interim_data[interim_data['type']]['checked'] = False
+
+            children_data.append(interim_data)
+        
+        #print(len(children_data))
+
+        data[data['type']]['children'] = children_data
+
+        #print(data)
+        #print("\n")
+    #return data
