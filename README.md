@@ -8,6 +8,10 @@ Since Notion provides API which could be used with Python3, I decided to use not
 ##### 230902
 - Address time zone differences in some calendar events which is set in different timezone. Special thanks to Tottenham Hotspur Football Club for providing this test case. #COYS
 
+##### 230911
+- Script can read To-do list from the most recent diary, and copy it to today's diary.
+- Script can read schedule information from the most recent diary, and write the events back to Google Calendar.
+
 
 ![alt text](https://github.com/david4270/notion-automation/blob/main/files/monthly.png?raw=true)
 
