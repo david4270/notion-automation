@@ -106,7 +106,11 @@ def main():
                                 target_child_data = notionapi.get_data(target_child_url, headers)
                                 for childlet in target_child_data[1:]:
                                     if childlet['table_row']['cells'][1][0]['text']['content'] != '':
-                                        target_event_list[childlet['table_row']['cells'][1][0]['text']['content']].append(int(re.findall('\d+',childlet['table_row']['cells'][0][0]['text']['content'])[0]))
+                                        eventlistathr = childlet['table_row']['cells'][1][0]['text']['content'].split(',')
+                                        if eventlistathr[-1] == '':
+                                            eventlistathr = eventlistathr[:-1]
+                                        for eventhr in eventlistathr:
+                                            target_event_list[eventhr].append(int(re.findall('\d+',childlet['table_row']['cells'][0][0]['text']['content'])[0]))
                                     #print()
                         if 'to_do' in datalet.keys():
                             datalet['to_do']['checked'] = False
@@ -158,7 +162,7 @@ def main():
         #print(eventName, gcal_events[eventName][0], gcal_events[eventName][1])
         for i in range(gcal_events[eventName][0], gcal_events[eventName][1] + 1):
             if(i >= 9 and i < 24):
-                events_dict["{}:00".format(i)] = events_dict.get("{}:00".format(i),"") + eventName
+                events_dict["{}:00".format(i)] = events_dict.get("{}:00".format(i),"") + eventName + ","
     print(events_dict)
 
     if today_diary_name not in titles.keys():
@@ -189,8 +193,13 @@ def main():
                                 target_child_url = f"https://api.notion.com/v1/blocks/{target_child_id}/children"
                                 target_child_data = notionapi.get_data(target_child_url, headers)
                                 for childlet in target_child_data[1:]:
+                                    #print(childlet)
                                     if childlet['table_row']['cells'][1][0]['text']['content'] != '':
-                                        target_event_list[childlet['table_row']['cells'][1][0]['text']['content']].append(int(re.findall('\d+',childlet['table_row']['cells'][0][0]['text']['content'])[0]))
+                                        eventlistathr = childlet['table_row']['cells'][1][0]['text']['content'].split(',')
+                                        if eventlistathr[-1] == '':
+                                            eventlistathr = eventlistathr[:-1]
+                                        for eventhr in eventlistathr:
+                                            target_event_list[eventhr].append(int(re.findall('\d+',childlet['table_row']['cells'][0][0]['text']['content'])[0]))
                                     #print()
                         if 'to_do' in datalet.keys():
                             datalet['to_do']['checked'] = False
