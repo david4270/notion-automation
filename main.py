@@ -22,6 +22,8 @@
 import requests
 from datetime import datetime, timezone, timedelta
 from dateutil.tz import *
+from collections import defaultdict
+import re
 
 import json
 
@@ -40,10 +42,10 @@ def main():
     }
 
     #testcase
-    now = datetime(2023,9,12)
+    #now = datetime(2023,9,12)
 
     # Analyse datetime
-    #now = datetime.now(tzlocal())  
+    now = datetime.now(tzlocal())  
     print("Now: ", now)
     today_diary_name = now.strftime("%B %d (%a)")
     print("Formatted time: ", today_diary_name)
@@ -94,15 +96,24 @@ def main():
                     target_diary_id = titles[queryday_diary_name][1].replace("-","")
                     target_diary_url = f"https://api.notion.com/v1/blocks/{target_diary_id}/children"
                     target_diary_data = notionapi.get_data(target_diary_url, headers)
+                    target_event_list = defaultdict(list)
                     for datalet in target_diary_data:
                         #print(datalet)
+                        if 'table' in datalet.keys():
+                            if datalet['has_children']:
+                                target_child_id = datalet['id'].replace("-","")
+                                target_child_url = f"https://api.notion.com/v1/blocks/{target_child_id}/children"
+                                target_child_data = notionapi.get_data(target_child_url, headers)
+                                for childlet in target_child_data[1:]:
+                                    if childlet['table_row']['cells'][1][0]['text']['content'] != '':
+                                        target_event_list[childlet['table_row']['cells'][1][0]['text']['content']].append(int(re.findall('\d+',childlet['table_row']['cells'][0][0]['text']['content'])[0]))
+                                    #print()
                         if 'to_do' in datalet.keys():
                             datalet['to_do']['checked'] = False
                             notionapi.set_children(datalet,headers)
                                 
                             # Gotta deal with children
                             to_do_backup.append(datalet)
-
 
                     break
                     
@@ -123,9 +134,6 @@ def main():
 
     else:
         print("Yep - monthly page exists.")
-
-
-        
 
     # Obtain data from diary template?
     diary_results_tmp = datahandling.json_open("page_template/diary.json")
@@ -149,17 +157,9 @@ def main():
     for eventName in gcal_events.keys():
         #print(eventName, gcal_events[eventName][0], gcal_events[eventName][1])
         for i in range(gcal_events[eventName][0], gcal_events[eventName][1] + 1):
-            if(i >= 9 and i < 12):
-                events_dict["{}AM".format(i)] = events_dict.get("{}AM".format(i),"") + eventName
-            if(i == 12):
-                events_dict["12PM"]= events_dict.get("12PM","") + eventName
-            if(i > 12 and i < 24):
-                events_dict["{}PM".format(i-12)] = events_dict.get("{}PM".format(i-12),"") + eventName
-            if(i == 24):
-                events_dict["12AM+1"] = events_dict.get("12AM+1","") + eventName
-
+            if(i >= 9 and i < 24):
+                events_dict["{}:00".format(i)] = events_dict.get("{}:00".format(i),"") + eventName
     print(events_dict)
-
 
     if today_diary_name not in titles.keys():
 
@@ -180,10 +180,18 @@ def main():
                     target_diary_id = titles[queryday_diary_name][1].replace("-","")
                     target_diary_url = f"https://api.notion.com/v1/blocks/{target_diary_id}/children"
                     target_diary_data = notionapi.get_data(target_diary_url, headers)
+                    target_event_list = defaultdict(list)
                     for datalet in target_diary_data:
                         #print(datalet)
                         if 'table' in datalet.keys():
-                            print(datalet)
+                            if datalet['has_children']:
+                                target_child_id = datalet['id'].replace("-","")
+                                target_child_url = f"https://api.notion.com/v1/blocks/{target_child_id}/children"
+                                target_child_data = notionapi.get_data(target_child_url, headers)
+                                for childlet in target_child_data[1:]:
+                                    if childlet['table_row']['cells'][1][0]['text']['content'] != '':
+                                        target_event_list[childlet['table_row']['cells'][1][0]['text']['content']].append(int(re.findall('\d+',childlet['table_row']['cells'][0][0]['text']['content'])[0]))
+                                    #print()
                         if 'to_do' in datalet.keys():
                             datalet['to_do']['checked'] = False
 
@@ -193,6 +201,7 @@ def main():
                             # Gotta deal with children
                             to_do_backup.append(datalet)
 
+                    gcalapi.gcal_event(queryday,target_event_list)
                     break
 
         print("Creating today's diary - " + today_diary_name)
@@ -219,8 +228,6 @@ def main():
         diary_results.extend(diary_results_tmp[1:])
 
         for i in range(0,len(diary_results)):
-            if diary_results[i]["type"] == "to_do":
-                ()
             if diary_results[i]["type"] == "table":
                 diary_results[i] = {  "type": "table",
                 "table": {
@@ -231,12 +238,8 @@ def main():
                                                                                             [{"type":"text","text":{"content":"Details"},"annotations":{"bold":True}}]]}}]
                     }
                 }
-                for a in range(8,12):
-                    diary_results[i]["table"]["children"].append({"type":"table_row","table_row":{"cells":[[{"type":"text","text":{"content":f"{a}AM"}}],[{"type":"text","text":{"content":events_dict.get("{}AM".format(a),"")}}],[]]}})
-                diary_results[i]["table"]["children"].append({"type":"table_row","table_row":{"cells":[[{"type":"text","text":{"content":"12PM"}}],[{"type":"text","text":{"content":events_dict.get("12PM","")}}],[]]}})
-                for a in range(1,12):
-                    diary_results[i]["table"]["children"].append({"type":"table_row","table_row":{"cells":[[{"type":"text","text":{"content":f"{a}PM"}}],[{"type":"text","text":{"content":events_dict.get("{}PM".format(a),"")}}],[]]}})
-                diary_results[i]["table"]["children"].append({"type":"table_row","table_row":{"cells":[[{"type":"text","text":{"content":"12AM+1"}}],[{"type":"text","text":{"content":events_dict.get("12AM+1","")}}],[]]}})
+                for a in range(8,24):
+                    diary_results[i]["table"]["children"].append({"type":"table_row","table_row":{"cells":[[{"type":"text","text":{"content":f"{a}:00"}}],[{"type":"text","text":{"content":events_dict.get("{}:00".format(a),"")}}],[]]}})
 
         update_payload = {
             "children": diary_results
@@ -247,11 +250,8 @@ def main():
         response = requests.patch(update_url, headers=headers, json=update_payload)
         print(response)
 
-        
-        
     else:
         print("Yep - daily diary exists")
-
 
 if __name__ == '__main__':
     main()

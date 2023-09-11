@@ -113,7 +113,7 @@ def gcal_access():
     
     return scheduleInfo
 
-def gcal_event():
+def gcal_event(queryday, eventlist):
     creds = None
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
@@ -136,13 +136,15 @@ def gcal_event():
         service = build('calendar', 'v3', credentials=creds)
 
         # simulation
-        now = datetime.datetime.now(tzlocal())
-        sample_event_dict = {"Event A": [14,16], "Event B": [18,20]}
+        #now = datetime.datetime.now(tzlocal())
+        #sample_event_dict = {"Event A": [14], "Event B": [18,19]}
 
-        print(now)
-
-        for event_name in sample_event_dict.keys():
-            event = service.events().insert(calendarId = "primary", body = {"summary":event_name,"start":{"dateTime":now.replace(hour=sample_event_dict[event_name][0], minute=0, second=0, microsecond=0).isoformat()}, "end":{"dateTime":now.replace(hour=sample_event_dict[event_name][1], minute=0, second=0, microsecond=0).isoformat()}}).execute()
+        for event_name in eventlist.keys():
+            start_time = queryday.replace(hour=eventlist[event_name][0], minute=0, second=0, microsecond=0)
+            end_time = queryday.replace(hour=eventlist[event_name][-1], minute=59, second=59, microsecond=0)
+            start_time = start_time.replace(tzinfo=start_time.tzinfo).astimezone(tzlocal())
+            end_time = end_time.replace(tzinfo=end_time.tzinfo).astimezone(tzlocal())
+            event = service.events().insert(calendarId = "primary", body = {"summary":event_name,"start":{"dateTime":start_time.isoformat()}, "end":{"dateTime":end_time.isoformat()}}).execute()
     
     except HttpError as error:
         print('An error occurred: %s' % error)
@@ -150,4 +152,4 @@ def gcal_event():
 
 #gcal_access()
 
-#gcal_event()
+#gcal_event(datetime.datetime.now(tzlocal()), {"Event A": [14], "Event B": [18,19]})

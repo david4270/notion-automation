@@ -135,11 +135,5 @@ def set_children(data, headers):
                 interim_data[interim_data['type']]['checked'] = False
 
             children_data.append(interim_data)
-        
-        #print(len(children_data))
 
         data[data['type']]['children'] = children_data
-
-        #print(data)
-        #print("\n")
-    #return data
