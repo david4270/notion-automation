@@ -20,7 +20,7 @@
 # https://developers.google.com/resources/api-libraries/documentation/calendar/v3/python/latest/index.html
 
 import requests
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from dateutil.tz import *
 
 import json
@@ -39,30 +39,94 @@ def main():
         "content-type": "application/json"
     }
 
-    # query
-
-    query_url = f"https://api.notion.com/v1/databases/{apiimport.DATABASE_ID}/query"
-    query_payload = {"page_size": 100}
-
-    pages = notionapi.query_pages(query_url, apiimport.DATABASE_ID, query_payload, headers)
-
     #testcase
-    #now = datetime(2023,9,10)
+    now = datetime(2023,9,12)
 
     # Analyse datetime
-    now = datetime.now(tzlocal())  
+    #now = datetime.now(tzlocal())  
     print("Now: ", now)
     today_diary_name = now.strftime("%B %d (%a)")
     print("Formatted time: ", today_diary_name)
     today_folder = now.strftime("%B %Y")
     print("New calendar goes into: ", today_folder)
 
+    # Search range for previous documents - 10 days?
+    prev_searchrange = now - timedelta(days=10)
+    prev_searchrange_name = prev_searchrange.strftime("%B %d (%a)")
+    print("Search from: ",prev_searchrange_name)
+    prev_folder = prev_searchrange.strftime("%B %Y")
+
+    # query
+
+    query_url = f"https://api.notion.com/v1/databases/{apiimport.DATABASE_ID}/query"
+    query_payload = {"page_size": 100}
+
+    pages = notionapi.query_pages(query_url, apiimport.DATABASE_ID, query_payload, headers)
     titles = datahandling.retrieveInfo(pages)
+
+    to_do_backup = []
 
     # Check if the monthly folder (today_folder) exists - if not, need to create database
     if today_folder not in titles.keys():
-        print("Nope")
+        print("Nope - this month's folder not found")
+        
+        if prev_folder in titles.keys():
+            print("Searching last month's folder for syncing data...")
+            
+            # retrieve diaries' names from previous month
+            retrieve_id = titles[prev_folder][1].replace("-","")
+            retrieve_url = f"https://api.notion.com/v1/databases/{retrieve_id}/query"
 
+            pages = notionapi.query_pages(retrieve_url, retrieve_id, query_payload, headers)
+
+            titles = datahandling.retrieveInfo(pages)
+
+            queryday = now.replace(day=1) # 1st of this month
+            
+            while queryday != prev_searchrange:
+                queryday -= timedelta(days=1)
+                queryday_diary_name = queryday.strftime("%B %d (%a)")
+                print(queryday_diary_name)
+                # perform query
+                if queryday_diary_name in titles.keys():
+                    print("target diary found")
+                    # query content of the diary
+                    target_diary_id = titles[queryday_diary_name][1].replace("-","")
+                    target_diary_url = f"https://api.notion.com/v1/blocks/{target_diary_id}/children"
+                    target_diary_data = notionapi.get_data(target_diary_url, headers)
+                    for datalet in target_diary_data:
+                        #print(datalet)
+                        if 'to_do' in datalet.keys():
+                            datalet['to_do']['checked'] = False
+                            if datalet['has_children'] == True:
+                                target_child_id = datalet['id'].replace("-","")
+                                target_child_url = f"https://api.notion.com/v1/blocks/{target_child_id}/children"
+                                target_child_data = notionapi.get_data(target_child_url, headers)
+                                
+                                children_data = []
+                                for it in range(len(target_child_data)):
+                                    interim_data = {}
+                                    interim_data['type'] = target_child_data[it]['type']
+
+                                    if target_child_data[it]['type'] == 'image':
+                                        continue
+
+                                    interim_data[interim_data['type']] = target_child_data[it][interim_data['type']]
+
+                                    if target_child_data[it]['type'] == 'to_do':
+                                        interim_data[interim_data['type']]['checked'] = False
+                                    
+                                    children_data.append(interim_data)
+                                
+
+                                datalet['to_do']['children'] = children_data
+                                
+                            # Gotta deal with children
+                            to_do_backup.append(datalet)
+
+
+                    break
+                    
         # Create database - https://www.pynotion.com/create-databases/
         create_payload = notionapi.empty_database_format(apiimport.DATABASE_ID, today_folder)
 
@@ -79,14 +143,14 @@ def main():
         # Monthly database exists now
 
     else:
-        print("Yep - monthly page exists")
+        print("Yep - monthly page exists.")
+
+
+        
 
     # Obtain data from diary template?
-    #diary_block_id = titles["Diary Template"][1].replace("-","")
-    #diary_results = notionapi.get_data(diary_block_id, headers)
-
-    # open page_
-    diary_results = datahandling.json_open("page_template/diary.json")
+    diary_results_tmp = datahandling.json_open("page_template/diary.json")
+    diary_results = [diary_results_tmp[0]]
     #print(diary_results)
 
     retrieve_id = titles[today_folder][1].replace("-","")
@@ -96,6 +160,7 @@ def main():
     pages = notionapi.query_pages(retrieve_url, retrieve_id, query_payload, headers)
 
     titles = datahandling.retrieveInfo(pages)
+    
 
     gcal_events = gcalapi.gcal_access()
     #print(gcal_events)
@@ -116,7 +181,60 @@ def main():
 
     print(events_dict)
 
+
     if today_diary_name not in titles.keys():
+
+        print("Nope - daily diary doesn't exist. Searching this month's folder for syncing data...")
+
+        # Search the latest diary in same month (hopefully yesterday)
+        if(len(to_do_backup) == 0):
+            queryday = now
+
+            while queryday != queryday.replace(day=1):
+                queryday -= timedelta(days=1)
+                queryday_diary_name = queryday.strftime("%B %d (%a)")
+                print(queryday_diary_name)
+                # perform query
+                if queryday_diary_name in titles.keys():
+                    print("target diary found")
+                    # query content of the diary
+                    target_diary_id = titles[queryday_diary_name][1].replace("-","")
+                    target_diary_url = f"https://api.notion.com/v1/blocks/{target_diary_id}/children"
+                    target_diary_data = notionapi.get_data(target_diary_url, headers)
+                    for datalet in target_diary_data:
+                        #print(datalet)
+                        if 'to_do' in datalet.keys():
+                            datalet['to_do']['checked'] = False
+                            if datalet['has_children'] == True:
+                                target_child_id = datalet['id'].replace("-","")
+                                target_child_url = f"https://api.notion.com/v1/blocks/{target_child_id}/children"
+                                target_child_data = notionapi.get_data(target_child_url, headers)
+
+                                children_data = []
+                                for it in range(len(target_child_data)):
+                                    interim_data = {}
+                                    interim_data['type'] = target_child_data[it]['type']
+
+                                    if target_child_data[it]['type'] == 'image':
+                                        continue
+
+                                    interim_data[interim_data['type']] = target_child_data[it][interim_data['type']]
+
+                                    if target_child_data[it]['type'] == 'to_do':
+                                        interim_data[interim_data['type']]['checked'] = False
+                                    
+                                    children_data.append(interim_data)
+
+                                datalet['to_do']['children'] = children_data
+                                
+                            # Gotta deal with children
+                            to_do_backup.append(datalet)
+
+                    break
+            
+        
+        #print(to_do_backup)
+
         print("Creating today's diary - " + today_diary_name)
 
         create_payload = notionapi.empty_page_format(retrieve_id, today_diary_name, "📅")
@@ -137,8 +255,14 @@ def main():
         update_url = f"https://api.notion.com/v1/blocks/{update_id}/children"
 
         # Create Table
+        diary_results.extend(to_do_backup)
+        diary_results.extend(diary_results_tmp[1:])
+        
+        
 
         for i in range(0,len(diary_results)):
+            if diary_results[i]["type"] == "to_do":
+                ()
             if diary_results[i]["type"] == "table":
                 diary_results[i] = {  "type": "table",
                 "table": {
@@ -159,8 +283,11 @@ def main():
         update_payload = {
             "children": diary_results
         }
+        
+        #print(update_payload)
 
         response = requests.patch(update_url, headers=headers, json=update_payload)
+        print(response)
 
         
         
