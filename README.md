@@ -32,8 +32,9 @@ If you want graphic version of this description, check below:
 ## Diary Structure
 The diary is contained in the 'monthly databases', as below:
 
-![alt text](https://github.com/david4270/notion-automation/blob/main/files/monthly.png?raw=true)
+<img src="https://github.com/david4270/notion-automation/blob/main/files/monthly.png?raw=true" width="50%">
 
 Here is what the diary format looks like - it includes To-Do, Tracker, and Diary.
 
-![alt text](https://github.com/david4270/notion-automation/blob/main/files/diary.png?raw=true)
+<img src="https://github.com/david4270/notion-automation/blob/main/files/diary.png?raw=true" width="50%">
+
