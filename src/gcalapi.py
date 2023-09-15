@@ -52,6 +52,8 @@ def gcal_access(queryday):
         now = queryday.replace(hour = 8, minute = 0, second = 0).isoformat()
         endofday = queryday.replace(hour = 23, minute = 59, second = 59).isoformat()
 
+        #print(now, endofday)
+
         # Get list of calendar ID
         calList_result = service.calendarList().list().execute()
         calList = calList_result.get('items',[])
@@ -100,16 +102,18 @@ def gcal_access(queryday):
             startTime = re.findall('T\d{2}:\d{2}', start)[0]
             endTime = re.findall('T\d{2}:\d{2}', end)[0]
 
-            startHr = int(startTime[1:3])
+            startHr = int(startTime[1:3]) *100 +int(startTime[4:6])
 
-            if(int(endTime[4:]) == 0):
-                endHr = int(endTime[1:3]) - 1
-            else:
-                endHr = int(endTime[1:3])
+            if(int(endTime[4:6]) == 0):
+                endHr = (int(endTime[1:3])-1)*100+30
+            if(0 < int(endTime[4:6]) <= 30):
+                endHr = (int(endTime[1:3]))*100
+            elif(30 < int(endTime[4:6]) < 60):
+                endHr = (int(endTime[1:3]))*100+30
             
             scheduleInfo[event['summary']] = (startHr, endHr)
     
-        #print(scheduleInfo)
+        print(scheduleInfo)
 
     except HttpError as error:
         print('An error occurred: %s' % error)
@@ -143,8 +147,16 @@ def gcal_event(queryday, eventlist):
         #sample_event_dict = {"Event A": [14], "Event B": [18,19]}
 
         for event_name in eventlist.keys():
-            start_time = queryday.replace(hour=eventlist[event_name][0], minute=0, second=0, microsecond=0)
-            end_time = queryday.replace(hour=eventlist[event_name][-1], minute=59, second=59, microsecond=0)
+            start_hour = eventlist[event_name][0]
+            end_hour = eventlist[event_name][-1]
+            
+            print(start_hour, end_hour)
+            start_time = queryday.replace(hour=start_hour//100, minute=(start_hour%100), second=0, microsecond=0)
+            if end_hour % 100 == 0: # 00 min
+                end_time = queryday.replace(hour=end_hour//100, minute=(end_hour%100)+30-1, second=59, microsecond=0)
+            else: # 30 min
+                end_time = queryday.replace(hour=(end_hour//100), minute=(end_hour%100)+30-1, second=59, microsecond=0)
+                
             start_time = start_time.replace(tzinfo=start_time.tzinfo).astimezone(tzlocal())
             end_time = end_time.replace(tzinfo=end_time.tzinfo).astimezone(tzlocal())
             event = service.events().insert(calendarId = "primary", body = {"summary":event_name,"start":{"dateTime":start_time.isoformat()}, "end":{"dateTime":end_time.isoformat()}}).execute()
@@ -153,6 +165,6 @@ def gcal_event(queryday, eventlist):
         print('An error occurred: %s' % error)
 
 
-#gcal_access()
+gcal_access(datetime.datetime.now(tzlocal()))
 
-#gcal_event(datetime.datetime.now(tzlocal()), {"Event A": [14], "Event B": [18,19]})
+#gcal_event(datetime.datetime.now(tzlocal()), {"Event A": [1400, 1430], "Event B": [1800,1830,1900], "Event C": [2030,2100], "Event D": [2330]})

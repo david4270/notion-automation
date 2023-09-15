@@ -2,6 +2,9 @@ import json
 import re
 from collections import defaultdict
 
+import datetime
+from dateutil.tz import *
+
 import src.notionapi as notionapi
 import src.gcalapi as gcalapi
 
@@ -53,7 +56,8 @@ def targetDiaryHandling(queryday, queryday_diary_name, to_do_backup, titles, hea
                             if eventlistathr[-1] == '':
                                 eventlistathr = eventlistathr[:-1]
                             for eventhr in eventlistathr:
-                                target_event_list[eventhr].append(int(re.findall('\d+',childlet['table_row']['cells'][0][0]['text']['content'])[0]))
+                                timeset = re.findall('\d+',childlet['table_row']['cells'][0][0]['text']['content'])
+                                target_event_list[eventhr].append(int(timeset[0])*100 + int(timeset[1]))
                         #print()
             if 'to_do' in datalet.keys():
                 datalet['to_do']['checked'] = False
@@ -67,7 +71,8 @@ def targetDiaryHandling(queryday, queryday_diary_name, to_do_backup, titles, hea
         #print(queryday_events_dict, target_event_list)
 
         for hr in queryday_events_dict.keys():
-            hr_abbr = hr[0:2]
+            #hr_abbr = hr[0:2]
+            hr_abbr = hr[0:2] + hr[3:5]
             #print(hr[0:2])
             #print(hr[0:2] + hr[3:5])
             for ev in queryday_events_dict[hr]:
@@ -89,7 +94,12 @@ def retrieveEvents(day):
     
     for eventName in gcal_events.keys():
         #print(eventName, gcal_events[eventName][0], gcal_events[eventName][1])
-        for i in range(gcal_events[eventName][0], gcal_events[eventName][1] + 1):
-            if(i >= 9 and i < 24):
+        for i in range(max(8,gcal_events[eventName][0]//100), min(24,gcal_events[eventName][1]//100 + 1)):
+            if gcal_events[eventName][0] % 100 == 0 or i > gcal_events[eventName][0]//100:
                 events_dict["{}:00".format(i)].append(eventName)
+            if gcal_events[eventName][1] % 100 != 0 or i < gcal_events[eventName][1]//100:
+                events_dict["{}:30".format(i)].append(eventName)
+    #print(events_dict)
     return events_dict
+
+#retrieveEvents(datetime.datetime.now(tzlocal()))

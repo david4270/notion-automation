@@ -42,7 +42,7 @@ def main():
     }
 
     #testcase
-    #now = datetime(2023,9,12)
+    #now = datetime.now(tzlocal()) + timedelta(days=1)
 
     # Analyse datetime
     now = datetime.now(tzlocal())  
@@ -182,6 +182,7 @@ def main():
                     }
                 }
                 for a in range(8,24):
+                    # new hour (:00)
                     eventlist = events_dict["{}:00".format(a)]
                     if len(eventlist) == 0:
                         diary_results[i]["table"]["children"].append({"type":"table_row","table_row":{"cells":[[{"type":"text","text":{"content":f"{a}:00"}}],[],[]]}})
@@ -190,6 +191,16 @@ def main():
                         for event in eventlist:
                             eventchar = eventchar + event +  ","
                         diary_results[i]["table"]["children"].append({"type":"table_row","table_row":{"cells":[[{"type":"text","text":{"content":f"{a}:00"}}],[{"type":"text","text":{"content": eventchar}}],[]]}})
+                    
+                    # half-hour (:30)
+                    eventlist = events_dict["{}:30".format(a)]
+                    if len(eventlist) == 0:
+                        diary_results[i]["table"]["children"].append({"type":"table_row","table_row":{"cells":[[{"type":"text","text":{"content":f"{a}:30"}}],[],[]]}})
+                    else:
+                        eventchar = ""
+                        for event in eventlist:
+                            eventchar = eventchar + event +  ","
+                        diary_results[i]["table"]["children"].append({"type":"table_row","table_row":{"cells":[[{"type":"text","text":{"content":f"{a}:30"}}],[{"type":"text","text":{"content": eventchar}}],[]]}})
         update_payload = {
             "children": diary_results
         }
