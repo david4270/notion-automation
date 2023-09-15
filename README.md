@@ -14,7 +14,7 @@ Since Notion provides API which could be used with Python3, I decided to use not
 
 ##### 230914
 - Script can avoid creating duplicate events in Google Calendar, when it is checking the diary from the most recent day before creation of today's diary.
-- Branch created for experiment
+- And... the diary is now divied by 30-minute term!
 
 ![alt text](https://github.com/david4270/notion-automation/blob/main/files/monthly.png?raw=true)
 
