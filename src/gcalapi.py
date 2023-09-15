@@ -113,7 +113,7 @@ def gcal_access(queryday):
             
             scheduleInfo[event['summary']] = (startHr, endHr)
     
-        print(scheduleInfo)
+        #print(scheduleInfo)
 
     except HttpError as error:
         print('An error occurred: %s' % error)
@@ -150,7 +150,7 @@ def gcal_event(queryday, eventlist):
             start_hour = eventlist[event_name][0]
             end_hour = eventlist[event_name][-1]
             
-            print(start_hour, end_hour)
+            #print(start_hour, end_hour)
             start_time = queryday.replace(hour=start_hour//100, minute=(start_hour%100), second=0, microsecond=0)
             if end_hour % 100 == 0: # 00 min
                 end_time = queryday.replace(hour=end_hour//100, minute=(end_hour%100)+30-1, second=59, microsecond=0)
@@ -165,6 +165,6 @@ def gcal_event(queryday, eventlist):
         print('An error occurred: %s' % error)
 
 
-gcal_access(datetime.datetime.now(tzlocal()))
+#gcal_access(datetime.datetime.now(tzlocal()))
 
 #gcal_event(datetime.datetime.now(tzlocal()), {"Event A": [1400, 1430], "Event B": [1800,1830,1900], "Event C": [2030,2100], "Event D": [2330]})
