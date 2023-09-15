@@ -4,21 +4,28 @@ Welcome to the notion automation script! In order to track my life better and ma
 
 Since Notion provides API which could be used with Python3, I decided to use notion's API to make a daily page (and a monthly page if it is a new month). 
 
-### Project Structure
+## Project Structure
+Here is a brief overview of how this project is structured. The script finds today's date, and checks if the monthly database exists. 
+
+If monthly database does not exist, it looks into previous month's database and search the most recent diary (within the selected range, which is set as 10 days). If the recent diary is found, it retrieves information from diary (to-do lists and schedule), then create events in Google Calendar if the new schedule entry is found in Notion. Then it creates monthly database.
+
+Then (or monthly database already existed), it retrieves diary template, and check today's events from Google Calendar.
+
 ![alt text](https://github.com/david4270/notion-automation/blob/main/files/project_flow.png?raw=true)
 
-### Update
-##### 230902
+## Update
+### 230902
 - Address time zone differences in some calendar events which is set in different timezone. Special thanks to Tottenham Hotspur Football Club for providing this test case. #COYS
 
-##### 230911
+### 230911
 - Script can read To-do list from the most recent diary, and copy it to today's diary.
 - Script can read schedule information from the most recent diary, and write the events back to Google Calendar.
 
-##### 230914
+### 230914
 - Script can avoid creating duplicate events in Google Calendar, when it is checking the diary from the most recent day before creation of today's diary.
 - And... the diary is now divied by 30-minute term!
 
+## Diary Structure
 ![alt text](https://github.com/david4270/notion-automation/blob/main/files/monthly.png?raw=true)
 
 Here is what the diary format looks like :D

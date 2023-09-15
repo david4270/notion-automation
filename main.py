@@ -42,7 +42,7 @@ def main():
     }
 
     #testcase
-    #now = datetime.now(tzlocal()) + timedelta(days=1)
+    #now = datetime.now(tzlocal()) + timedelta(days=7)
 
     # Analyse datetime
     now = datetime.now(tzlocal())  
@@ -132,12 +132,12 @@ def main():
     if today_diary_name not in titles.keys():
 
         print("Nope - daily diary doesn't exist. Searching this month's folder for syncing data...")
-
+        
         # Search the latest diary in same month (hopefully yesterday)
         if(len(to_do_backup) == 0):
             queryday = now
 
-            while queryday != queryday.replace(day=1):
+            while queryday != prev_searchrange:
                 queryday -= timedelta(days=1)
                 queryday_diary_name = queryday.strftime("%B %d (%a)")
                 print(queryday_diary_name)
@@ -146,7 +146,7 @@ def main():
                     print("target diary found")
                     datahandling.targetDiaryHandling(queryday, queryday_diary_name, to_do_backup, titles, headers)
                     break
-
+        
         print("Creating today's diary - " + today_diary_name)
 
         create_payload = notionapi.empty_page_format(retrieve_id, today_diary_name, "📅")
