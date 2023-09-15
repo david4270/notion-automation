@@ -27,7 +27,7 @@ If you want graphic version of this description, check below:
 
 ### 230914
 - Script can avoid creating duplicate events in Google Calendar, when it is checking the diary from the most recent day before creation of today's diary.
-- And... the diary is now divied by 30-minute term!
+- And... the schedule is now divied by 30 minutes!
 
 ## Diary Structure
 The diary is contained in the 'monthly databases', as below:
