@@ -1,8 +1,8 @@
-﻿# notion-automation
+﻿# Project DiarySetup
 
 Welcome to the notion automation script! To track my life better and make it more structured, I started to write a daily diary and tracker in Notion - as Notion is automatically synchronized between different devices (Android/iOS/Windows). The daily tracker is divided into three sections - to-do, tracker, and diary. While not all sections are filled and are meant to be filled automatically, it would be good if the daily tracker pages could be created with daily events populated within the tracker, if they exist.
 
-Since Notion provides API which could be used with Python3, I decided to use notion's API to make a daily page (and a monthly page if it is a new month). The script started to work on July 22, 2023, and more features have been added since then.
+Since Notion provides API which could be used with Python3, I decided to use notion's API to make a daily page (and a monthly page if it is a new month). The script started working on July 22, 2023, and more features have been added.
 
 ## Project Structure
 Here is a brief overview of how this project is structured. The script finds today's date and checks if the monthly database exists. 
