@@ -1,4 +1,9 @@
-import json 
+import json
+import re
+from collections import defaultdict
+
+import src.notionapi as notionapi
+import src.gcalapi as gcalapi
 
 def retrieveInfo(pages):
     # Traverse queried pages
@@ -27,3 +32,64 @@ def json_open(fileName):
     
     f.close()
     return data["results"]
+
+def targetDiaryHandling(queryday, queryday_diary_name, to_do_backup, titles, headers):
+        
+        # query content of the diary
+        target_diary_id = titles[queryday_diary_name][1].replace("-","")
+        target_diary_url = f"https://api.notion.com/v1/blocks/{target_diary_id}/children"
+        target_diary_data = notionapi.get_data(target_diary_url, headers)
+        target_event_list = defaultdict(list)
+        for datalet in target_diary_data:
+            #print(datalet)
+            if 'table' in datalet.keys():
+                if datalet['has_children']:
+                    target_child_id = datalet['id'].replace("-","")
+                    target_child_url = f"https://api.notion.com/v1/blocks/{target_child_id}/children"
+                    target_child_data = notionapi.get_data(target_child_url, headers)
+                    for childlet in target_child_data[1:]:
+                        if len(childlet['table_row']['cells'][1]) != 0:
+                            eventlistathr = childlet['table_row']['cells'][1][0]['text']['content'].split(',')
+                            if eventlistathr[-1] == '':
+                                eventlistathr = eventlistathr[:-1]
+                            for eventhr in eventlistathr:
+                                target_event_list[eventhr].append(int(re.findall('\d+',childlet['table_row']['cells'][0][0]['text']['content'])[0]))
+                        #print()
+            if 'to_do' in datalet.keys():
+                datalet['to_do']['checked'] = False
+                notionapi.set_children(datalet,headers)
+                    
+                # Gotta deal with children
+                to_do_backup.append(datalet)
+        
+        queryday_events_dict = retrieveEvents(queryday)
+
+        #print(queryday_events_dict, target_event_list)
+
+        for hr in queryday_events_dict.keys():
+            hr_abbr = hr[0:2]
+            #print(hr[0:2])
+            #print(hr[0:2] + hr[3:5])
+            for ev in queryday_events_dict[hr]:
+                if ev in target_event_list.keys():
+                    #print(target_event_list[ev])
+
+                    for hr_abbr in target_event_list[ev]:
+                        target_event_list[ev].remove(hr_abbr)
+                    
+                    target_event_list.pop(ev)
+                    
+        #print(target_event_list)
+
+        gcalapi.gcal_event(queryday,target_event_list)
+
+def retrieveEvents(day):
+    gcal_events = gcalapi.gcal_access(day)
+    events_dict = defaultdict(list)
+    
+    for eventName in gcal_events.keys():
+        #print(eventName, gcal_events[eventName][0], gcal_events[eventName][1])
+        for i in range(gcal_events[eventName][0], gcal_events[eventName][1] + 1):
+            if(i >= 9 and i < 24):
+                events_dict["{}:00".format(i)].append(eventName)
+    return events_dict

@@ -18,7 +18,7 @@ from googleapiclient.errors import HttpError
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly', 'https://www.googleapis.com/auth/calendar']
 
-def gcal_access():
+def gcal_access(queryday):
     """Shows basic usage of the Google Calendar API.
     Prints the start and name of the next 10 events on the user's calendar.
     """
@@ -46,8 +46,11 @@ def gcal_access():
 
         # Call the Calendar API
 
-        now = datetime.datetime.now(tzlocal()).replace(hour = 8, minute = 0, second = 0).isoformat()
-        endofday = datetime.datetime.now(tzlocal()).replace(hour = 23, minute = 59, second = 59).isoformat()
+        #now = datetime.datetime.now(tzlocal()).replace(hour = 8, minute = 0, second = 0).isoformat()
+        #endofday = datetime.datetime.now(tzlocal()).replace(hour = 23, minute = 59, second = 59).isoformat()
+
+        now = queryday.replace(hour = 8, minute = 0, second = 0).isoformat()
+        endofday = queryday.replace(hour = 23, minute = 59, second = 59).isoformat()
 
         # Get list of calendar ID
         calList_result = service.calendarList().list().execute()

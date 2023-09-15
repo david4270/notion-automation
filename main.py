@@ -89,38 +89,13 @@ def main():
                 queryday -= timedelta(days=1)
                 queryday_diary_name = queryday.strftime("%B %d (%a)")
                 print(queryday_diary_name)
+                
                 # perform query
                 if queryday_diary_name in titles.keys():
                     print("target diary found")
-                    # query content of the diary
-                    target_diary_id = titles[queryday_diary_name][1].replace("-","")
-                    target_diary_url = f"https://api.notion.com/v1/blocks/{target_diary_id}/children"
-                    target_diary_data = notionapi.get_data(target_diary_url, headers)
-                    target_event_list = defaultdict(list)
-                    for datalet in target_diary_data:
-                        #print(datalet)
-                        if 'table' in datalet.keys():
-                            if datalet['has_children']:
-                                target_child_id = datalet['id'].replace("-","")
-                                target_child_url = f"https://api.notion.com/v1/blocks/{target_child_id}/children"
-                                target_child_data = notionapi.get_data(target_child_url, headers)
-                                for childlet in target_child_data[1:]:
-                                    if childlet['table_row']['cells'][1][0]['text']['content'] != '':
-                                        eventlistathr = childlet['table_row']['cells'][1][0]['text']['content'].split(',')
-                                        if eventlistathr[-1] == '':
-                                            eventlistathr = eventlistathr[:-1]
-                                        for eventhr in eventlistathr:
-                                            target_event_list[eventhr].append(int(re.findall('\d+',childlet['table_row']['cells'][0][0]['text']['content'])[0]))
-                                    #print()
-                        if 'to_do' in datalet.keys():
-                            datalet['to_do']['checked'] = False
-                            notionapi.set_children(datalet,headers)
-                                
-                            # Gotta deal with children
-                            to_do_backup.append(datalet)
-
+                    datahandling.targetDiaryHandling(queryday, queryday_diary_name, to_do_backup, titles, headers)
                     break
-                    
+                
         # Create database - https://www.pynotion.com/create-databases/
         create_payload = notionapi.empty_database_format(apiimport.DATABASE_ID, today_folder)
 
@@ -152,18 +127,7 @@ def main():
 
     titles = datahandling.retrieveInfo(pages)
     
-
-    gcal_events = gcalapi.gcal_access()
-    #print(gcal_events)
-
-    events_dict = {}
-
-    for eventName in gcal_events.keys():
-        #print(eventName, gcal_events[eventName][0], gcal_events[eventName][1])
-        for i in range(gcal_events[eventName][0], gcal_events[eventName][1] + 1):
-            if(i >= 9 and i < 24):
-                events_dict["{}:00".format(i)] = events_dict.get("{}:00".format(i),"") + eventName + ","
-    print(events_dict)
+    events_dict = datahandling.retrieveEvents(now)
 
     if today_diary_name not in titles.keys():
 
@@ -180,37 +144,7 @@ def main():
                 # perform query
                 if queryday_diary_name in titles.keys():
                     print("target diary found")
-                    # query content of the diary
-                    target_diary_id = titles[queryday_diary_name][1].replace("-","")
-                    target_diary_url = f"https://api.notion.com/v1/blocks/{target_diary_id}/children"
-                    target_diary_data = notionapi.get_data(target_diary_url, headers)
-                    target_event_list = defaultdict(list)
-                    for datalet in target_diary_data:
-                        #print(datalet)
-                        if 'table' in datalet.keys():
-                            if datalet['has_children']:
-                                target_child_id = datalet['id'].replace("-","")
-                                target_child_url = f"https://api.notion.com/v1/blocks/{target_child_id}/children"
-                                target_child_data = notionapi.get_data(target_child_url, headers)
-                                for childlet in target_child_data[1:]:
-                                    #print(childlet)
-                                    if childlet['table_row']['cells'][1][0]['text']['content'] != '':
-                                        eventlistathr = childlet['table_row']['cells'][1][0]['text']['content'].split(',')
-                                        if eventlistathr[-1] == '':
-                                            eventlistathr = eventlistathr[:-1]
-                                        for eventhr in eventlistathr:
-                                            target_event_list[eventhr].append(int(re.findall('\d+',childlet['table_row']['cells'][0][0]['text']['content'])[0]))
-                                    #print()
-                        if 'to_do' in datalet.keys():
-                            datalet['to_do']['checked'] = False
-
-                            # to make function - set_children(data, )
-                            notionapi.set_children(datalet,headers)
-
-                            # Gotta deal with children
-                            to_do_backup.append(datalet)
-
-                    gcalapi.gcal_event(queryday,target_event_list)
+                    datahandling.targetDiaryHandling(queryday, queryday_diary_name, to_do_backup, titles, headers)
                     break
 
         print("Creating today's diary - " + today_diary_name)
@@ -235,7 +169,7 @@ def main():
         # Create Table
         diary_results.extend(to_do_backup)
         diary_results.extend(diary_results_tmp[1:])
-
+        
         for i in range(0,len(diary_results)):
             if diary_results[i]["type"] == "table":
                 diary_results[i] = {  "type": "table",
@@ -248,8 +182,14 @@ def main():
                     }
                 }
                 for a in range(8,24):
-                    diary_results[i]["table"]["children"].append({"type":"table_row","table_row":{"cells":[[{"type":"text","text":{"content":f"{a}:00"}}],[{"type":"text","text":{"content":events_dict.get("{}:00".format(a),"")}}],[]]}})
-
+                    eventlist = events_dict["{}:00".format(a)]
+                    if len(eventlist) == 0:
+                        diary_results[i]["table"]["children"].append({"type":"table_row","table_row":{"cells":[[{"type":"text","text":{"content":f"{a}:00"}}],[],[]]}})
+                    else:
+                        eventchar = ""
+                        for event in eventlist:
+                            eventchar = eventchar + event +  ","
+                        diary_results[i]["table"]["children"].append({"type":"table_row","table_row":{"cells":[[{"type":"text","text":{"content":f"{a}:00"}}],[{"type":"text","text":{"content": eventchar}}],[]]}})
         update_payload = {
             "children": diary_results
         }
