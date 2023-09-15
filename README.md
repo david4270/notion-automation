@@ -12,9 +12,12 @@ Since Notion provides API which could be used with Python3, I decided to use not
 - Script can read To-do list from the most recent diary, and copy it to today's diary.
 - Script can read schedule information from the most recent diary, and write the events back to Google Calendar.
 
+##### 230914
+- Script can avoid creating duplicate events in Google Calendar, when it is checking the diary from the most recent day before creation of today's diary.
+- Branch created for experiment
 
 ![alt text](https://github.com/david4270/notion-automation/blob/main/files/monthly.png?raw=true)
 
-Here is what the diary format looks like :)
+Here is what the diary format looks like :D
 
 ![alt text](https://github.com/david4270/notion-automation/blob/main/files/diary.png?raw=true)
