@@ -18,16 +18,17 @@ If you want a graphic version of this description, check below:
 ![alt text](https://github.com/david4270/notion-automation/blob/main/files/project_flow.png?raw=true)
 
 ## Update
-### 230902
-- Address time zone differences in some calendar events set in different time zones. Special thanks to Tottenham Hotspur Football Club for providing this test case. #COYS
+### 230914
+- Script can avoid creating duplicate events in Google Calendar when checking the diary from the most recent day before the creation of today's diary.
+- And... the schedule is now divided by 30 minutes!
 
 ### 230911
 - Script can read a To-do list from the most recent diary and copy it to today's diary.
 - Script can read schedule information from the most recent diary and return the events to Google Calendar.
 
-### 230914
-- Script can avoid creating duplicate events in Google Calendar when checking the diary from the most recent day before the creation of today's diary.
-- And... the schedule is now divided by 30 minutes!
+### 230902
+- Address time zone differences in some calendar events set in different time zones. Special thanks to Tottenham Hotspur Football Club for providing this test case. #COYS
+
 
 ## Diary Structure
 The diary is contained in the 'monthly databases' - as below:
