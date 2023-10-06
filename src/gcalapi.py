@@ -84,7 +84,7 @@ def gcal_access(queryday):
             else:
                 start = event['start'].get('date')
                 start_obj = datetime.datetime.strptime(start, '%Y-%m-%d').date()
-                start_obj = start_obj.replace(tzinfo=start_obj.tzinfo).astimezone(tzlocal())
+                #start_obj = start_obj.replace(tzinfo=start_obj.tzinfo).astimezone(tzlocal())
                 start = start_obj.strftime("%Y-%b-%dT%H:%M")            
 
             if 'dateTime' in event['end'].keys():
