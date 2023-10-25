@@ -45,6 +45,10 @@ def targetDiaryHandling(queryday, queryday_diary_name, to_do_backup, titles, hea
         target_event_list = defaultdict(list)
         for datalet in target_diary_data:
             #print(datalet)
+            
+            if 'link_to_page' in datalet.keys():
+                to_do_backup.append(datalet)
+
             if 'table' in datalet.keys():
                 if datalet['has_children']:
                     target_child_id = datalet['id'].replace("-","")
