@@ -42,10 +42,10 @@ def main():
     }
 
     #testcase
-    now = datetime.now(tzlocal()) + timedelta(days=1)
+    #now = datetime.now(tzlocal()) + timedelta(days=1)
 
     # Analyse datetime
-    #now = datetime.now(tzlocal())  
+    now = datetime.now(tzlocal())  
     print("Now: ", now)
     today_diary_name = now.strftime("%B %d (%a)")
     print("Formatted time: ", today_diary_name)
