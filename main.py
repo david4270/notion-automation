@@ -3,12 +3,7 @@
 # Ideal if it can run every hour when desktop is on, and keep updating the schedule based on google calendar and outlook
 # The script should run every morning
 
-# To-do
-# 1) Get page data for last 10 days (before today's page creation) - get the latest page. Copy the to-do list and retrieve the modified schedule information from table
-# 1-1) Copy the recent to-do list to today's page
-# 1-2) Create events (of past) based on schedule information retrieved from 1) on google calendar. If there are multiple events, separate by comma (,)
-# 2) Make tables into 30-minute basis, and use 24-hour format
-
+# Install Python (preferably anaconda) before using this script. Google Calendar-related APIs should be also installed.
 
 # Notion API
 # https://developers.notion.com/docs/create-a-notion-integration
