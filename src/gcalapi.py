@@ -65,7 +65,7 @@ def gcal_access(queryday):
         events = []
         for cid in calIDList:
             events_result = service.events().list(calendarId=cid, timeMin=now, timeMax = endofday,
-                                                maxResults=10, singleEvents=True,
+                                                maxResults=20, singleEvents=True,
                                                 orderBy='startTime').execute()
             events.extend(events_result.get('items', []))
 
