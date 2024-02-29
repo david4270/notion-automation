@@ -18,9 +18,14 @@ def retrieveInfo(pages):
         id = page["id"]
 
         if objType == "page":
-            title = page["properties"]["Page"]["title"][0]["plain_text"]
+            try:
+                title = page["properties"]["Page"]["title"][0]["plain_text"]
+            except:
+                title = ""
         elif objType == "database":
             title = page["title"][0]["plain_text"]
+        else:
+            title = ""
         
         #print(url, objType, id, title)
 
